@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Post;
 use App\Models\Type;
+use App\Models\Technology;
 
 class PostController extends Controller
 {
@@ -31,7 +32,8 @@ class PostController extends Controller
     public function create()
     {
         $types = Type::all();
-        return view('admin.posts.create', compact('types'));
+        $technologies = Technology::all();
+        return view('admin.posts.create', compact('types', 'technologies'));
     }
 
     /**
@@ -50,18 +52,23 @@ class PostController extends Controller
                 'title' => 'required|string',
                 'content' => 'required',
                 'slug' => 'required',
-                'type_id' => 'nullable|exists:types,id'
+                'type_id' => 'nullable|exists:types,id',
+                'technologies' => 'nullable|exists:technologies,id'
             ],
             [
                 'title.required' => 'Il titolo è obbligatorio',
                 'title.string' => 'Il titolo deve essere una stringa',
                 'content.required' => 'Il contenuto è obbligatorio',
-                'slug.required' => 'Lo slug è obbligatorio'
+                'slug.required' => 'Lo slug è obbligatorio',
+                'type_id.exists' => 'Il tipo inserito non è valido',
+                'technologies.exists' => 'La tecnologia inserita non è valida',
             ]
             )->validate();
         $post = new Post();
         $post->fill($data);
         $post->save();
+
+        $post->technologies()->attach($data['technologies']);
 
         return redirect()->route('admin.posts.show', $post);
     }

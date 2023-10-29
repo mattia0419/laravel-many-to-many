@@ -10,6 +10,7 @@ use App\Models\Post;
 use Illuminate\Support\Str;
 
 use App\Models\Type;
+use App\Models\Technology;
 
 use Faker\Generator as Faker;
 
@@ -24,6 +25,7 @@ class PostSeeder extends Seeder
     {
 
         $types_ids = Type::all()->pluck('id');
+        $technologies_ids = Technology::all()->pluck('id');
 
         for($i = 0; $i < 100; $i++){
             $post = new Post();
@@ -32,6 +34,7 @@ class PostSeeder extends Seeder
             $post->content = $faker->paragraphs(3, true);
             $post->slug = Str::slug($post->title);
             $post->save();
+            $post->technologies()->attach($faker->randomElements($technologies_ids, rand(0, 2)));
         }
     }
 }

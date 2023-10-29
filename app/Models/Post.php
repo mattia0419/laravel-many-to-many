@@ -24,4 +24,11 @@ class Post extends Model
         return $this->type ? "<span class='badge' style='background-color:{$this->type->color}'>{$this->type->name}</span>" : "Without type";
              
     }
+    public function getTechnologyBadges(){
+        $badge = "";
+        foreach($this->technologies as $technology){
+            $badge .= "<span class='badge' style='background-color:{$technology->color}'>{$technology->label}</span>";
+        }
+        return $badge;             
+    }
 }

@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
   <a href="{{ route('admin.posts.index') }}" class="btn btn-success mt-3">Torna alla lista</a>
-    <h1 class="my-5">Modifica ptogetto</h1>
+    <h1 class="my-5">Modifica progetto</h1>
     @if($errors->any())
     <div class="alert alert-danger">
           <h3>Correggi i seguenti errori:</h3>
@@ -57,11 +57,26 @@
       </div>
       @enderror
       </div>
+      <div class="col-12 mb-4">
+        <div class="row form-check @error ('technologies') is-invalid @enderror">
+          @foreach ($technologies as $technology)
+          <div class="col-2">
+            <input type="checkbox" name="technologies[]" id="technologies-{{$technology->id}}" value="{{$technology->id}}" class="form-check-control" @if(in_array($technology->id, old('technologies') ?? $technology_ids)) checked @endif>
+            <label for="technologies-{{$technology->id}}">{{$technology->label}}</label>
+          </div>
+          @endforeach
+        </div>
+        @error('technologies')
+        <div class="invalid-feedback">
+          {{$message}}
+        </div>
+        @enderror
+      </div>
       <div class="col-12">
         <label for="content">
             Contenuto
         </label> 
-        <textarea name="content" id="content" cols="30" rows="5" class="form-control @error('content') is-invalid @enderror" value="{{ $post->content }}"></textarea>
+        <textarea name="content" id="content" cols="30" rows="5" class="form-control @error('content') is-invalid @enderror" value="{{ $post->content }}">{{$post->content}}</textarea>
         @error('content')
         <div class="invalid-feedback">
             {{ $message }}

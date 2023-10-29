@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Arr;
 
 use App\Models\Post;
 use App\Models\Type;
@@ -61,14 +62,15 @@ class PostController extends Controller
                 'content.required' => 'Il contenuto è obbligatorio',
                 'slug.required' => 'Lo slug è obbligatorio',
                 'type_id.exists' => 'Il tipo inserito non è valido',
-                'technologies.exists' => 'La tecnologia inserita non è valida',
+                'technologies.exists' => 'La tecnologia inserita non è valida'
             ]
             )->validate();
         $post = new Post();
         $post->fill($data);
         $post->save();
-
-        $post->technologies()->attach($data['technologies']);
+        if(Arr::exists($data, 'technologies')){
+            $post->technologies()->attach($data['technologies']);
+        }
 
         return redirect()->route('admin.posts.show', $post);
     }
@@ -93,8 +95,11 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $types = Type::all();
+        $technologies = Technology::all();
 
-        return view('admin.posts.edit', compact('post','types'));
+        $technology_ids = $post->technologies->pluck('id')->toArray();
+
+        return view('admin.posts.edit', compact('post','types', 'technologies', 'technology_ids'));
     }
 
     /**
@@ -112,17 +117,26 @@ class PostController extends Controller
             [
                 'title' => 'required|string',
                 'content' => 'required',
-                'slug' => 'required'
+                'slug' => 'required',
+                'type_id' => 'nullable|exists:types,id',
+                'technologies' => 'nullable|exists:technologies,id'
             ],
             [
                 'title.required' => 'Il titolo è obbligatorio',
                 'title.string' => 'Il titolo deve essere una stringa',
                 'content.required' => 'Il contenuto è obbligatorio',
-                'slug.required' => 'Lo slug è obbligatorio'
+                'slug.required' => 'Lo slug è obbligatorio',
+                'type_id.exists' => 'Il tipo inserito non è valido',
+                'technologies.exists' => 'La tecnologia inserita non è valida'
             ]
             )->validate();
         $post->update($data);
-
+        if(Arr::exists($data, 'technologies')){
+            $post->technologies()->sync($data['technologies']);
+        }
+        else{
+            $post->technologies()->detach();
+        }
         return redirect()->route('admin.posts.show', $post);
     }
 
@@ -134,6 +148,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        $post->technologies()->detach();
         $post->delete();
         return redirect()->route('admin.posts.index');
     }

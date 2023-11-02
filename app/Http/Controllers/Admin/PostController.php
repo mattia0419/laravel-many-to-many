@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Post;
 use App\Models\Type;
@@ -51,6 +52,7 @@ class PostController extends Controller
             $data,
             [
                 'title' => 'required|string',
+                'cover_image' => 'nullable|image',
                 'content' => 'required',
                 'slug' => 'required',
                 'type_id' => 'nullable|exists:types,id',
@@ -59,6 +61,7 @@ class PostController extends Controller
             [
                 'title.required' => 'Il titolo è obbligatorio',
                 'title.string' => 'Il titolo deve essere una stringa',
+                'cover_image.image' => 'Il file caricato deve essere un\'immagine',
                 'content.required' => 'Il contenuto è obbligatorio',
                 'slug.required' => 'Lo slug è obbligatorio',
                 'type_id.exists' => 'Il tipo inserito non è valido',
@@ -67,6 +70,10 @@ class PostController extends Controller
             )->validate();
         $post = new Post();
         $post->fill($data);
+        if(Arr::exists($data, 'cover_image')){
+            $post->cover_image = Storage::put('uploads/posts/cover_image', $data['cover_image']);
+        }
+         
         $post->save();
         if(Arr::exists($data, 'technologies')){
             $post->technologies()->attach($data['technologies']);

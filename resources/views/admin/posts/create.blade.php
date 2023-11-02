@@ -14,11 +14,11 @@
           </ul>
     </div>
     @endif
-    <form action="{{ route('admin.posts.store') }}" method="POST">
+    <form action="{{ route('admin.posts.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
 
     <div class="row g-3">
-      <div class="col-4">
+      <div class="col-3">
         <label for="title">
           Titolo
       </label>
@@ -29,7 +29,18 @@
       </div>
       @enderror
       </div>
-      <div class="col-4">
+      <div class="col-3">
+        <label for="cover_image">
+          Cover
+      </label>
+      <input type="file" name="cover_image" id="cover_image" class="form-control @error('cover_image') is-invalid @enderror" value="{{ old('cover_image') }}">
+      @error('cover_image')
+      <div class="invalid-feedback">
+          {{ $message }}
+      </div>
+      @enderror
+      </div>
+      <div class="col-3">
         <label for="type_id">
           Type
       </label>
@@ -45,7 +56,7 @@
       </div>
       @enderror
       </div>
-      <div class="col-4">
+      <div class="col-3">
         <label for="slug">
           Slug
       </label>

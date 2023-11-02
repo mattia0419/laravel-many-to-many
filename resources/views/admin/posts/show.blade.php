@@ -29,6 +29,11 @@
         </tbody>
         <a href="{{ route('admin.posts.index') }}" class="btn btn-outline-success my-3">Torna alla lista</a>
       </table>
+      <div class="row">
+        <div class="col-4">
+          <img src="{{ asset('/storage/' . $post->cover_image) }}" alt="" class="img-fluid">
+        </div>
+      </div>
 </div>
     
 @endsection

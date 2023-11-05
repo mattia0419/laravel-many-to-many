@@ -14,7 +14,7 @@
           </ul>
     </div>
     @endif
-    <form action="{{ route('admin.posts.update', $post) }}" method="POST">
+    <form action="{{ route('admin.posts.update', $post) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
     <div class="row g-3">
@@ -57,6 +57,34 @@
       </div>
       @enderror
       </div>
+      <div class="col-12">
+        <div class="row">
+          <div class="col-8">
+            <label for="cover_image">
+              Cover
+          </label>
+          <input type="file" name="cover_image" id="cover_image" class="form-control @error('cover_image') is-invalid @enderror" value="{{ old('cover_image') }}">
+          @error('cover_image')
+          <div class="invalid-feedback">
+              {{ $message }}
+          </div>
+          @enderror
+          </div>
+          <div class="col-4 position-relative">
+            @if($post->cover_image)
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger delete-button">
+                <span id="delete_button">
+                  delete
+                </span>
+                <span class="visually-hidden">delete image</span>
+              </span>
+              @endif
+            
+
+            <img src="{{ asset('/storage/' . $post->cover_image) }}" alt="" class="img-fluid" id="cover_image_preview">
+          </div>
+        </div>
+      </div>
       <div class="col-12 mb-4">
         <div class="row form-check @error ('technologies') is-invalid @enderror">
           @foreach ($technologies as $technology)
@@ -89,4 +117,30 @@
     </div>
     </form>
 </div> 
+@if($post->cover_image)
+<form method="POST" action="{{ route('admin.posts.delete-image', $post) }}" id="delete_form">
+  @csrf
+  @method('DELETE')
+</form>
+@endif
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+  const inputFileElement = document.getElementById('cover_image');
+  const coverImagePreview = document.getElementById('cover_image_preview');
+  inputFileElement.addEventListener('change', function(){
+    const [file] = this.files;
+    coverImagePreview.src = URL.createObjectURL(file);
+  })
+</script>
+@if($post->cover_image)
+<script>
+    const deleteElement = document.getElementById('delete_button');
+    const deleteForm = document.getElementById('delete_form');
+    deleteElement.addEventListener('click', function(){
+      deleteForm.submit();
+  })
+</script>
+@endif
 @endsection

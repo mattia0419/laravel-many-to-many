@@ -70,7 +70,7 @@ class PostController extends Controller
             )->validate();
         $post = new Post();
         $post->fill($data);
-        if(Arr::exists($data, 'cover_image')){
+        if($request->hasFile('cover_image')){
             $post->cover_image = Storage::put('uploads/posts/cover_image', $data['cover_image']);
         }
          
@@ -123,6 +123,7 @@ class PostController extends Controller
             $data,
             [
                 'title' => 'required|string',
+                'cover_image' => 'nullable|image',
                 'content' => 'required',
                 'slug' => 'required',
                 'type_id' => 'nullable|exists:types,id',
@@ -131,13 +132,27 @@ class PostController extends Controller
             [
                 'title.required' => 'Il titolo è obbligatorio',
                 'title.string' => 'Il titolo deve essere una stringa',
+                'cover_image.image' => 'Il file caricato deve essere un\'immagine',
                 'content.required' => 'Il contenuto è obbligatorio',
                 'slug.required' => 'Lo slug è obbligatorio',
                 'type_id.exists' => 'Il tipo inserito non è valido',
                 'technologies.exists' => 'La tecnologia inserita non è valida'
             ]
             )->validate();
+            
         $post->update($data);
+        $post->fill($data);
+
+        if($request->hasFile('cover_image')){
+            if($post->cover_image){
+                Storage::delete($post->cover_image);
+            }
+
+            $post->cover_image = Storage::put('uploads/posts/cover_image', $data['cover_image']);
+        }
+
+    $post->save();
+
         if(Arr::exists($data, 'technologies')){
             $post->technologies()->sync($data['technologies']);
         }
@@ -158,5 +173,11 @@ class PostController extends Controller
         $post->technologies()->detach();
         $post->delete();
         return redirect()->route('admin.posts.index');
+    }
+    public function deleteImage(Post $post){
+        Storage::delete($post->cover_image);
+        $post->cover_image = null;
+        $post->save();
+        return redirect()->back();
     }
 }

@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])
 
     Route::get('/', [AdminPageController::class, 'index'])->name('home');
 
+    Route::delete('/posts/{post}/delete-image', [PostController::class, 'deleteImage'])->name('posts.delete-image');
     Route::resource('posts', PostController::class);
   });
 
